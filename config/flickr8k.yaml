@@ -1,0 +1,39 @@
+model_name: "unsloth/Llama-3.2-11B-Vision-Instruct"
+load_in_4bit: true
+dataset: Flickr8k
+base_path: data
+output_dir: outputs
+name_trained_model: llama11b_flickr8k_lora
+
+# Dati
+use_streaming: false
+external_knowledge: false
+instruction: "You are an image captioning assistant. Describe the image."
+
+# Training
+batch_size: 2
+grad_accum: 4
+epochs: 5            
+lr: 0.0002
+max_seq_length: 1536 
+use_bf16: false      
+
+eval_steps: 500
+save_strategy: steps
+save_steps: 500
+
+
+# LoRA
+lora_r: 16
+lora_alpha: 16
+lora_dropout: 0.05
+bias: "none"
+use_gradient_checkpointing: "unsloth"
+
+use_text_normalization: true
+debug_exact_match: false
+
+# Logging
+use_wandb: false
+logging_steps: 10
+n_saves: 5
