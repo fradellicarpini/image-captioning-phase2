@@ -1,39 +1,75 @@
 model_name: "unsloth/Llama-3.2-11B-Vision-Instruct"
 load_in_4bit: true
-dataset: Flickr8k
-base_path: data
-output_dir: outputs
+use_gradient_checkpointing: "unsloth"
 name_trained_model: llama11b_flickr8k_lora
 
-# Dati
-use_streaming: false
-external_knowledge: false
-instruction: "You are an image captioning assistant. Describe the image."
+# Moduli da finetunare (esplicitati per chiarezza)
+finetune_vision_layers: false
+finetune_language_layers: true
+finetune_attention_modules: true
+finetune_mlp_modules: true
+finetune_norm_layers: false
 
-# Training
-batch_size: 2
-grad_accum: 4
-epochs: 5            
-lr: 0.0002
-max_seq_length: 1536 
-use_bf16: false      
-
-eval_steps: 500
-save_strategy: steps
-save_steps: 500
-
-
-# LoRA
+# LoRA parameters
 lora_r: 16
 lora_alpha: 16
 lora_dropout: 0.05
 bias: "none"
-use_gradient_checkpointing: "unsloth"
+use_rslora: false 
 
+# Training parameters
+batch_size: 2
+grad_accum: 4               
+warmup_steps: 200
+epochs: 1
+lr: 0.0002
+weight_decay: 0.02
+logging_steps: 50
+optim: "adamw_8bit"
+scheduler: "cosine"
+seed: 3407
+eval_steps: 500
+max_grad_norm: 1.0
 use_text_normalization: true
 debug_exact_match: false
+max_seq_length: 1536       
+
+# Early stopping parameters
+use_early_stopping: false
+early_stopping_patience_ratio: 0.1
+early_stopping_threshold: 0.01
+
+# Inference parameters (per valutazione/generazione caption)
+instruction: "You are an image captioning assistant. Describe the image."
+max_new_tokens: 128
+temperature: 0.1
+top_p: 0.95
+top_k: 50
+num_beams: 1
+do_sample: true
+
+# Hardware options
+use_bf16: true             
+
+# Dataset parameters
+dataset: "Flickr8k"
+base_path: "data"
+external_knowledge: false
+num_proc: 4
+reproducible: false
 
 # Logging
-use_wandb: false
-logging_steps: 10
+use_wandb: true
+wandb_project: "flickr8k-lora"
+wandb_tags: ["flickr8k", "lora", "llama3-vision"]
+
+# Output settings
+output_dir: "outputs"
+
+# Streaming parameters
+use_streaming: true
+use_val_streaming: true
+stream_buffer_size: 1000
+save_steps: 500
 n_saves: 5
+
