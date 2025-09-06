@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-import os
-os.environ["TORCHDYNAMO_DISABLE"] = "1"
-os.environ["TORCHINDUCTOR_DISABLE"] = "1"
 """
 Unified VizSage training script
 Run with: python train.py [config_file]
@@ -108,7 +105,7 @@ def train_streaming(
             optim=enhanced_config.get("optim", "adamw_8bit"),
             weight_decay=enhanced_config.get("weight_decay", 0.01),
             lr_scheduler_type=enhanced_config.get("scheduler", "linear"),
-            
+
             # Sequence and data settings
             max_seq_length=enhanced_config.get("max_seq_length", 2048),
             remove_unused_columns=False,
@@ -249,7 +246,7 @@ def train_regular(
             optim=enhanced_config.get("optim", "adamw_8bit"),
             weight_decay=enhanced_config.get("weight_decay", 0.01),
             lr_scheduler_type=enhanced_config.get("scheduler", "linear"),
-            
+
             # Sequence and data settings
             max_seq_length=enhanced_config.get("max_seq_length", 2048),
             remove_unused_columns=False,
@@ -706,23 +703,6 @@ def main():
         # Load model
         print("Loading model...")
         model, tokenizer = model_utils.get_model_from_config(config)
-        # --- Fix cache di generazione per modelli Mllama/Unsloth ---
-        try:
-            # Preferisci cache dinamica
-            if getattr(model, "generation_config", None) is not None:
-                model.generation_config.cache_implementation = "dynamic"
-            else:
-                # fallback: disattiva la cache se non esiste una generation_config
-                model.config.use_cache = False
-        except Exception:
-            # se la proprietà non è supportata, disattiva la cache
-            try:
-                model.generation_config.use_cache = False
-            except Exception:
-                pass
-            if hasattr(model.config, "use_cache"):
-                model.config.use_cache = False
-        # -----------------------------------------------------------
 
         # Prepare datasets
         train_dataset, val_dataset, test_dataset, len_train_dataset, len_test_dataset, semart_dataset = prepare_datasets(
