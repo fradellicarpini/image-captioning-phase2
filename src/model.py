@@ -5,7 +5,7 @@ Enhanced model utilities with better configuration handling and error management
 import torch
 from unsloth import FastVisionModel
 import data_utils
-from transformers import AutoTokenizer, TextStreamer, GenerationConfig
+from transformers import AutoTokenizer, TextStreamer
 from typing import Dict, Any, Tuple, Optional, Union, List
 import os
 
@@ -114,22 +114,7 @@ def get_model(
             load_in_4bit=load_in_4bit,
             use_gradient_checkpointing=use_gradient_checkpointing
         )
-        try:
-            # Prova a usare cache dinamica
-            if getattr(model, "generation_config", None) is not None:
-                model.generation_config.cache_implementation = "dynamic"
-            else:
-                # fallback: disattiva la cache
-                if hasattr(model.config, "use_cache"):
-                    model.config.use_cache = False
-        except Exception:
-            # Ultimo fallback: spegni la cache sia in generation_config che in config
-            try:
-                model.generation_config.use_cache = False
-            except Exception:
-                pass
-            if hasattr(model.config, "use_cache"):
-                model.config.use_cache = False
+
         print("Configuring LoRA layers...")
 
         # Configure LoRA
@@ -276,16 +261,9 @@ def make_inference(
 
         # Generate response
         try:
-            gen_cfg = GenerationConfig.from_model_config(model.config)
-            try:
-                gen_cfg.cache_implementation = "dynamic"
-            except Exception:
-                 # Se non supporta 'cache_implementation', spegni la cache
-                gen_cfg.use_cache = False
             with torch.no_grad():
                 outputs = model.generate(
                     **inputs,
-                    generation_config=gen_cfg,   # <<< forza la cache compatibile
                     max_new_tokens=max_new_tokens,
                     temperature=temperature,
                     top_p=top_p,
