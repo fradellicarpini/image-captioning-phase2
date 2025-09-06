@@ -19,7 +19,7 @@ use_rslora: false
 
 # Training parameters
 batch_size: 2
-grad_accum: 4               
+grad_accum: 4               # effective batch per device = 8
 warmup_steps: 200
 epochs: 1
 lr: 0.0002
@@ -32,7 +32,7 @@ eval_steps: 500
 max_grad_norm: 1.0
 use_text_normalization: true
 debug_exact_match: false
-max_seq_length: 1536       
+max_seq_length: 1536     
 
 # Early stopping parameters
 use_early_stopping: false
@@ -60,8 +60,8 @@ reproducible: false
 
 # Logging
 use_wandb: true
-wandb_project: "VizSage"
-wandb_tags: ["llama3", "vision", "finetune"]
+wandb_project: "flickr8k-finetuning"
+wandb_tags: ["flickr8k", "lora", "llama3-vision"]
 
 # Output settings
 output_dir: "outputs"
@@ -72,5 +72,4 @@ use_val_streaming: true
 stream_buffer_size: 1000
 save_steps: 500
 n_saves: 5
-
 
